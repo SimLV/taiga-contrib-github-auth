@@ -23,7 +23,7 @@ gulp.task('compile', function() {
     var jade = gulp.src(paths.jade)
         .pipe($.plumber())
         .pipe($.cached('jade'))
-        .pipe($.jade({pretty: true}))
+        .pipe($.pug({pretty: true}))
         .pipe($.angularTemplatecache({
             transformUrl: function(url) {
                 return '/plugins/github-auth/' + url;
@@ -39,14 +39,14 @@ gulp.task('compile', function() {
 
     return merge(jade, coffee)
         .pipe($.concat('github-auth.js'))
-        .pipe($.uglify({mangle:false, preserveComments: false}))
+        .pipe($.uglify({mangle:false, output:{comments: "some"}}))
         .pipe(gulp.dest(paths.dist));
 });
 
 gulp.task('watch', function() {
-    gulp.watch([paths.jade, paths.coffee, paths.images], ['copy-images', 'compile']);
+    gulp.watch([paths.jade, paths.coffee, paths.images], gulp.series('copy-images', 'compile'));
 });
 
-gulp.task('default', ['copy-config', 'copy-images', 'compile', 'watch']);
+gulp.task('default', gulp.series('copy-config', 'copy-images', 'compile', 'watch'));
 
-gulp.task('build', ['copy-config', 'copy-images', 'compile', ]);
+gulp.task('build', gulp.series('copy-config', 'copy-images', 'compile', ));
